@@ -14,6 +14,10 @@ public class PhysicsObject : MonoBehaviour
      */
      protected Rigidbody2D rb2d;
     protected Vector2 velocity;
+    protected const float minMove = 0.001f;
+    protected const float shellRadius = 0.1f;
+    protected RaycastHit2D[] hitBuffer = new RaycastHit2D[16];
+    private ContactFilter2D contactFilter;
 
 
     void OnEnable () 
@@ -25,7 +29,9 @@ public class PhysicsObject : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        
+        contactFilter.useTriggers = false;
+        contactFilter.SetLayerMask(Physics2D.GetLayerCollisionMask (gameObject.layer));
+        contactFilter.useLayerMask = true;
     }
 
     // Update is called once per frame
@@ -48,6 +54,14 @@ public class PhysicsObject : MonoBehaviour
 
     void Movement(Vector2 move) 
     {
+
+        float distance = move.magnitude;
+
+        if (distance > minMove) {
+            //Check to see if rigid body 2d will overlap with anything in the next frame
+            int count = rb2d.Cast(move, contactFilter, hitBuffer, distance + shellRadius);
+        }
+
         rb2d.position = rb2d.position + move;
     }
 }
